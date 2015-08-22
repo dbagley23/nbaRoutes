@@ -1,0 +1,110 @@
+<html>
+<body>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://cdn.firebase.com/js/client/2.2.7/firebase.js"></script>
+
+<script>
+
+    //1. Browser Networking (client server architecture)
+    //Note: GET, POST, PUT, DELETE and the REST conventions
+    $.ajax({
+        url: 'http://localhost:8080',
+        method: "GET",
+        success: function(data){
+            console.log(data);
+        }
+    });
+
+    //  http://localhost:8080/quote/random
+    //  http://localhost:8080/quote/1
+
+    $.ajax({
+        url: 'http://localhost:8080/quote',
+        method: "POST",
+        contentType: 'application/json',
+        data: JSON.stringify({author: 'Abraham Lincoln', text: "You can't trust everything you read on the internet."}),
+        success: function(data){
+            console.log(data)
+        }
+    });
+
+    $.ajax({
+        url: 'http://localhost:8080/quote/3',
+        method: "DELETE",
+        success: function(data){
+            console.log(data)
+        }
+    });
+
+    //2. A real world server and API
+
+    //GETS
+    $.ajax({
+        url: 'https://scott-dev-mountain.firebaseio.com/scott/get.json',
+        method: 'GET',
+        success: function(data){
+            console.log('Look Ma! See what our request returned from the server:', data);
+        },
+        error: function(error){
+            console.log('Hopefully this code will never execute and we will never see this error:', error)
+        }
+    });
+
+    //PUTS
+    $.ajax({
+        url: 'https://scott-dev-mountain.firebaseio.com/scott/put.json',
+        method: 'PUT',
+        data: JSON.stringify({info: 'This is a PUT occurring at ' + getTime() + ' !'})
+    })
+
+    //POSTS
+    $.ajax({
+        url: 'https://scott-dev-mountain.firebaseio.com/scott/post.json',
+        method: 'POST',
+        data: JSON.stringify({info: 'This is a POST occurring at ' + getTime() + ' !'})
+    })
+
+
+    //DELETE (But only DELETE 5 seconds after a PUT so that there's something to delete)
+    $.ajax({
+        url: 'https://scott-dev-mountain.firebaseio.com/scott/delete.json',
+        method: 'PUT',
+        data: {info: 'This is a PUT occurring at ' + getTime() + ' !'}
+    })
+
+    setTimeout(function(){
+        $.ajax({
+            url: 'https://scott-dev-mountain.firebaseio.com/scott/delete.json',
+            method: 'DELETE'
+        })
+    }, 5000)
+
+
+    function getTime(){
+        return (new Date().toTimeString()).slice(0, 8)
+    }
+
+
+    //3. External API's (And the pain of navigating them)
+    //  http://api.nytimes.com/svc/search/v2/articlesearch.json?q=new+york+times&page=2&sort=oldest&api-key=####
+
+    //4. Wrapper libraries (like Firebase)
+
+    //GET equivalent
+    var myFirebaseRef = new Firebase("https://scott-dev-mountain.firebaseio.com/scott/get");
+    myFirebaseRef.once('value', function(snap){
+        console.log('Look Ma! Data from Firebase: ', snap.val())
+    })
+
+    //PUT equivalent
+    myFirebaseRef = new Firebase("https://scott-dev-mountain.firebaseio.com/scott/put");
+    myFirebaseRef.set({info: 'This is a Firebase wrapper PUT equivalent!'})
+
+
+    //POST equivalent
+    myFirebaseRef = new Firebase("https://scott-dev-mountain.firebaseio.com/scott/post");
+    myFirebaseRef.push({info: 'This is a Firebase wrapper POST equivalent!'})
+
+</script>
+</body>
+</html>
